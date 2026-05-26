@@ -1,0 +1,236 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  account      String   @unique
+  password     String
+  mobile       String?
+  avatar       String?
+  nickname     String?
+  gender       String?
+  birthday     String?
+  cityCode     String?
+  provinceCode String?
+  profession   String?
+
+  cartItems CartItem[]
+  addresses Address[]
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id       String   @id @default(cuid())
+  name     String
+  picture  String
+  layer    Int
+  parentId String?
+  parent   Category? @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Brand {
+  id      String  @id @default(cuid())
+  name    String
+  nameEn  String?
+  logo    String?
+  picture String?
+  type    String?
+  desc    String?
+  place   String?
+
+  products Product[]
+}
+
+model Banner {
+  id               String @id @default(cuid())
+  imgUrl           String
+  hrefUrl          String
+  type             String
+  distributionSite String @default("1")
+}
+
+model Product {
+  id           String  @id @default(cuid())
+  name         String
+  spuCode      String?
+  desc         String?
+  price        Decimal @db.Decimal(10, 2)
+  oldPrice     Decimal? @db.Decimal(10, 2)
+  discount     Int?
+  inventory    Int     @default(0)
+  salesCount   Int     @default(0)
+  commentCount Int     @default(0)
+  collectCount Int     @default(0)
+  mainPictures String[]
+  mainVideos   String[]
+  videoScale   Int?
+  isPreSale    Boolean @default(false)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  brandId    String?
+  brand      Brand?    @relation(fields: [brandId], references: [id], onDelete: SetNull)
+
+  specs       ProductSpec[]
+  skus        ProductSku[]
+  detailProps ProductDetailProperty[]
+  detailPics  ProductDetailPicture[]
+
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductSpec {
+  id        String  @id @default(cuid())
+  name      String
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  values ProductSpecValue[]
+}
+
+model ProductSpecValue {
+  id      String  @id @default(cuid())
+  name    String
+  picture String?
+  desc    String?
+  specId  String
+  spec    ProductSpec @relation(fields: [specId], references: [id], onDelete: Cascade)
+
+  skuSpecs ProductSkuSpecValue[]
+}
+
+model ProductSku {
+  id        String   @id @default(cuid())
+  skuCode   String?
+  price     Decimal  @db.Decimal(10, 2)
+  oldPrice  Decimal? @db.Decimal(10, 2)
+  inventory Int      @default(0)
+  productId String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  specValues ProductSkuSpecValue[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductSkuSpecValue {
+  id          String          @id @default(cuid())
+  skuId       String
+  sku         ProductSku      @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  specValueId String
+  specValue   ProductSpecValue @relation(fields: [specValueId], references: [id], onDelete: Cascade)
+
+  @@unique([skuId, specValueId])
+}
+
+model ProductDetailProperty {
+  id        String  @id @default(cuid())
+  name      String
+  value     String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductDetailPicture {
+  id        String  @id @default(cuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model CartItem {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skuId    String
+  sku      ProductSku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  count    Int        @default(1)
+  selected Boolean    @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, skuId])
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  receiver     String
+  contact      String
+  provinceCode String?
+  cityCode     String?
+  countyCode   String?
+  address      String
+  isDefault    Int      @default(0)
+  fullLocation String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addressId        String?
+  orderState       Int       @default(1)
+  payMoney         Decimal   @default(0) @db.Decimal(10, 2)
+  totalMoney       Decimal   @default(0) @db.Decimal(10, 2)
+  totalPayMoney    Decimal   @default(0) @db.Decimal(10, 2)
+  totalNum         Int       @default(0)
+  postFee          Decimal   @default(0) @db.Decimal(10, 2)
+  payType          Int       @default(1)
+  payChannel       Int       @default(1)
+  buyerMessage     String?
+  deliveryTimeType Int       @default(1)
+  createTime       DateTime  @default(now())
+  payTime          DateTime?
+  consignTime      DateTime?
+  endTime          DateTime?
+  closeTime        DateTime?
+  countdown        Int?
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  skuId     String
+  sku       ProductSku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String
+  picture   String
+  price     Decimal  @db.Decimal(10, 2)
+  count     Int
+  attrsText String?
+  realPay   Decimal? @db.Decimal(10, 2)
+}
