@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: shop-postgres
+    environment:
+      POSTGRES_USER: shop_user
+      POSTGRES_PASSWORD: "123"
+      POSTGRES_DB: shop
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - shop-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop_user -d shop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shop-api
+    environment:
+      DATABASE_URL: "postgresql://shop_user:123@postgres:5432/shop"
+      JWT_SECRET: "change-me-in-production"
+      JWT_EXPIRES_IN: "7d"
+      PORT: "3000"
+    expose:
+      - "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: shop-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - shop-net
+
+networks:
+  shop-net:
+    driver: bridge
+
+volumes:
+  pgdata:
