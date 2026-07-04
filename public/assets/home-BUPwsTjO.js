@@ -1,0 +1,1 @@
+import{h as t}from"./http-Xi9MqC_u.js";function e(n={}){const{distributionSite:o="1"}=n;return t({url:"/home/banner",params:{distributionSite:o}})}const s=()=>t({url:"/home/new"}),a=()=>t({url:"home/hot"}),u=()=>t({url:"/home/goods"});export{a,u as b,s as f,e as g};

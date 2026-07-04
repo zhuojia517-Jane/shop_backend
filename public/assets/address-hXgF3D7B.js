@@ -1,0 +1,1 @@
+import{h as r}from"./http-Xi9MqC_u.js";const d=()=>r({url:"/member/address"}),t=e=>r({url:"/member/address",method:"POST",data:e}),a=e=>r({url:"/member/address",method:"PUT",data:e}),m=e=>r({url:"/member/address",method:"DELETE",data:{id:e}});export{t as a,m as d,a as e,d as g};

@@ -1,0 +1,1 @@
+import{bo as r,r as o}from"./vendor-vue-BU2YQpKA.js";import{h as a}from"./http-Xi9MqC_u.js";function s(){return a({url:"/home/category/head"})}const u=r("category",()=>{const t=o([]);return{categoryList:t,getCategory:async()=>{const e=await s();t.value=e.result}}});export{u};

@@ -1,0 +1,1 @@
+import{h as o}from"./http-Xi9MqC_u.js";function e(t){return o({url:"/goods",params:{id:t}})}const n=({id:t,type:r,limit:a=3})=>o({url:"/goods/hot",params:{id:t,type:r,limit:a}});export{n as a,e as g};

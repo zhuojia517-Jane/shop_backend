@@ -1,0 +1,1 @@
+import{h as t}from"./http-Xi9MqC_u.js";function a(r){return t({url:"/category",params:{id:r}})}const o=r=>t({url:"/category/sub/filter",params:{id:r}}),g=r=>t({url:"/category/goods/temporary",method:"POST",data:r});export{g as a,o as b,a as g};

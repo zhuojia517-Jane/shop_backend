@@ -6,5 +6,6 @@ dist
 Dockerfile
 docker-compose.yml
 nginx
+public
 README.md
 *.md
